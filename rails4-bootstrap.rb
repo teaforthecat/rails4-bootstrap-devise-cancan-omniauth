@@ -26,8 +26,7 @@ remove_file 'Gemfile'
 create_file 'Gemfile'
 add_source 'https://rubygems.org'
 
-gem 'rails', '4.0.0'
-gem "mongoid", github: "mongoid/mongoid"
+gem 'rails', '4.0.2'
 
 gem 'sass-rails', '~> 4.0.0'
 gem 'uglifier', '>= 1.3.0'
@@ -52,7 +51,6 @@ gem_group :development, :test do
 end
 
 gem_group :test do
-  gem "mongoid-rspec"
   gem "ffaker"
   gem "simplecov", require: false
   gem "database_cleaner"
@@ -72,7 +70,6 @@ gem "hashugar", github: "alex-klepa/hashugar"
 run 'bundle install'
 
 ### Generators
-generate 'mongoid:config'
 generate 'simple_form:install --bootstrap'
 generate 'devise:install'
 generate :controller, "home index"
@@ -82,8 +79,8 @@ route 'resources :users'
 route <<-eos
 
   devise_for :users, controllers: {
-    registrations: "users/registrations", 
-    passwords: "users/passwords", 
+    registrations: "users/registrations",
+    passwords: "users/passwords",
     omniauth_callbacks: "users/omniauth_callbacks"
   }
 eos
