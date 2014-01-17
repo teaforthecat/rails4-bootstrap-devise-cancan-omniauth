@@ -1,10 +1,10 @@
 ### Initial setup
-remove_file 'config/database.yml'
 remove_file 'app/assets/stylesheets/application.css'
 remove_file 'app/controllers/application_controller.rb'
 remove_file 'app/views/layouts/application.html.erb'
 remove_file 'db/seeds.rb'
 environment 'config.action_mailer.default_url_options = {host: "localhost:3000"}', env: 'development'
+
 
 ### Gems
 remove_file 'Gemfile'
@@ -20,7 +20,7 @@ gem 'therubyracer', platforms: :ruby
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
-
+gem 'mysql2'
 
 gem_group :development do
   gem "guard-rspec"
@@ -54,6 +54,8 @@ gem "hashugar", github: "alex-klepa/hashugar"
 
 run 'bundle install'
 
+generate 'simple_form:install --bootstrap'
+
 ### Routes
 route 'resources :users'
 route <<-eos
@@ -75,32 +77,6 @@ route <<-eos
   end
 eos
 
-### Simple form
-inject_into_file 'config/initializers/simple_form_bootstrap.rb', after: 'SimpleForm.setup do |config|' do
-  <<-eos
-
-  config.wrappers :inline_checkbox, :tag => 'div', :class => 'control-group', :error_class => 'error' do |b|
-    b.use :html5
-    b.use :placeholder
-    b.wrapper :tag => 'div', :class => 'controls' do |ba|
-      ba.use :label_input, :class => 'checkbox inline'
-      ba.use :error, :wrap_with => { :tag => 'span', :class => 'help-inline' }
-      ba.use :hint,  :wrap_with => { :tag => 'p', :class => 'help-block' }
-    end
-  end
-  eos
-end
-
-### Bootstrap JS
-inject_into_file "app/assets/javascripts/application.js", "//= require bootstrap\n", before: '//= require_tree'
-
-### Devise OmniAuth providers config
-inject_into_file 'config/initializers/devise.rb', after: /# config.omniauth .*?\n/ do
-  <<-eos
-  config.omniauth :facebook, ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'], scope: 'email,user_birthday,read_stream'
-  config.omniauth :twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
-  eos
-end
 
 ### Download misc files
 source_url = 'https://raw.github.com/teaforthecat/rails4-bootstrap-devise-cancan-omniauth/master'
@@ -143,9 +119,40 @@ get "#{source_url}/Guardfile",                                                'G
 get "#{source_url}/.rspec",                                                   '.rspec'
 
 
-### Generators
-generate 'simple_form:install --bootstrap'
-generate 'devise:install'
+
+### Simple form must come after generate
+inject_into_file 'config/initializers/simple_form_bootstrap.rb', after: 'SimpleForm.setup do |config|' do
+  <<-eos
+
+  config.wrappers :inline_checkbox, :tag => 'div', :class => 'control-group', :error_class => 'error' do |b|
+    b.use :html5
+    b.use :placeholder
+    b.wrapper :tag => 'div', :class => 'controls' do |ba|
+      ba.use :label_input, :class => 'checkbox inline'
+      ba.use :error, :wrap_with => { :tag => 'span', :class => 'help-inline' }
+      ba.use :hint,  :wrap_with => { :tag => 'p', :class => 'help-block' }
+    end
+  end
+  eos
+end
+
+
+
+### Bootstrap JS
+inject_into_file "app/assets/javascripts/application.js", "//= require bootstrap\n", before: '//= require_tree'
+
+`touch config/initializers/devise.rb`
+### Devise OmniAuth providers config
+inject_into_file 'config/initializers/devise.rb', after: /# config.omniauth .*?\n/ do
+  <<-eos
+  config.omniauth :facebook, ENV['FACEBOOK_KEY'], ENV['FACEBOOK_SECRET'], scope: 'email,user_birthday,read_stream'
+  config.omniauth :twitter, ENV['CONSUMER_KEY'], ENV['CONSUMER_SECRET']
+  eos
+end
+
 generate :controller, "home index"
-generate :migration, "create_users", "email image first_name last_name roles_mask:integer"
-generate :migration, "create_identities", "uid provider token secret expires_at:datetime email image nickname first_name last_name"
+
+puts  " rails g create_users email image first_name last_name roles_mask:integer"
+puts  " rails g create_identities uid provider token secret expires_at:datetime email image nickname first_name last_name"
+### Generators
+puts 'devise:install'
