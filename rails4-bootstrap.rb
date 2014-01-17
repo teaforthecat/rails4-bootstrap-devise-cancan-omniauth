@@ -6,7 +6,6 @@ remove_file 'app/views/layouts/application.html.erb'
 remove_file 'db/seeds.rb'
 environment 'config.action_mailer.default_url_options = {host: "localhost:3000"}', env: 'development'
 
-
 ### Disable active record
 gsub_file 'config/application.rb', "require 'rails/all'" do
 <<-eos
@@ -68,11 +67,6 @@ gem "omniauth-twitter"
 gem "hashugar", github: "alex-klepa/hashugar"
 
 run 'bundle install'
-
-### Generators
-generate 'simple_form:install --bootstrap'
-generate 'devise:install'
-generate :controller, "home index"
 
 ### Routes
 route 'resources :users'
@@ -161,3 +155,11 @@ get "#{source_url}/zeus.json",                                                'z
 get "#{source_url}/spec/spec_helper.rb",                                      'spec/spec_helper.rb'
 get "#{source_url}/Guardfile",                                                'Guardfile'
 get "#{source_url}/.rspec",                                                   '.rspec'
+
+
+### Generators
+generate 'simple_form:install --bootstrap'
+generate 'devise:install'
+generate :controller, "home index"
+generate :migration, "create_users", "email image first_name last_name roles_mask:integer"
+generate :migration, "create_identities", "uid provider token secret expires_at:datetime email image nickname first_name last_name"
